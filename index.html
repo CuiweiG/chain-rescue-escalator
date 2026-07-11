@@ -435,6 +435,11 @@ footer.site b{color:#A9BCCC}
         <p class="hint"><span class="cn">内含真实比例的整机模型、乘梯人物动画、着火撤离与地面手刹演示。全部在您的浏览器本地运行。</span>
            <span class="en">Full-scale machine model, rider animations, fire-drill evacuation and ground-brake demos — all running locally in your browser.</span></p>
         <button class="btn primary" id="demolaunch"><span class="cn">▶ 启动演示</span><span class="en">▶ Start the demo</span></button>
+        <div id="demolinks" style="display:none; font-size:13.5px; color:#93A9BC">
+          <span class="cn">按钮无反应？直接打开：</span><span class="en">Button not working? Open directly:</span>
+          <a href="demo-cn.html?v=7" style="color:#9FC3E4">中文演示页</a> ·
+          <a href="demo-en.html?v=7" style="color:#9FC3E4">English demo</a>
+        </div>
       </div>
     </div>
     <div class="demo-tips">
@@ -683,6 +688,22 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
   <span><span class="lab">下降速度</span><span id="st-v">0.00</span> 米/秒</span>
   <span><span class="lab">刹车</span><span id="brakestate" class="off">松开</span></span>
 </div>
+
+<script>
+window.addEventListener('error', function(e){
+  var d = document.getElementById('errbar');
+  if (!d){
+    d = document.createElement('div'); d.id = 'errbar';
+    d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#B8352B;color:#fff;font-size:12px;padding:6px 10px;font-family:monospace;word-break:break-all;';
+    (document.body || document.documentElement).appendChild(d);
+  }
+  d.textContent = 'ERR: ' + (e.message || e.type || '?') + ' @' + (e.lineno || 0);
+});
+setTimeout(function(){
+  try{ window.dispatchEvent(new Event('resize')); }
+  catch(err){ try{ var ev = document.createEvent('Event'); ev.initEvent('resize', true, false); window.dispatchEvent(ev); }catch(e2){} }
+}, 450);
+</script>
 
 <script>
 /**
@@ -1881,39 +1902,63 @@ ground.position.y = -0.05; scene.add(ground);
 /* 落地缓冲气囊/砂包（老先生图3） */
 var cushion = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.26, 0.95), std(0xd9822b, 0.75, 0.05));
 cushion.position.set(0, 0.13, 0.45); scene.add(cushion);
-/* ===== 着火演示（多层焰片+辉光+浮烟+闪烁光源） ===== */
+/* ===== 着火演示（火舌形焰片+火星+双层辉光+跳动光源） ===== */
 var fireGroup = new THREE.Group(); fireGroup.visible = false; scene.add(fireGroup);
-var flames = [], smokes = [], fireOn = false, fireLight;
+var flames = [], smokes = [], sparks = [], fireOn = false, fireLight;
 (function(){
   var fx = 4.6, fy = 14.0;
+  function flameGeo(w, h){
+    var g = new THREE.BufferGeometry();
+    var v = new Float32Array([
+      0, 0, 0,   w*0.5, h*0.26, 0,   w*0.36, h*0.60, 0,
+      0, h, 0,  -w*0.36, h*0.60, 0, -w*0.5, h*0.26, 0
+    ]);
+    g.setAttribute('position', new THREE.BufferAttribute(v, 3));
+    g.setIndex([0,1,2, 0,2,3, 0,3,4, 0,4,5]);
+    return g;
+  }
   var layers = [
-    {w:1.35, h:2.0, c:0x8f1a0a, o:0.55, dz:0.10},
-    {w:1.05, h:1.75, c:0xd93b12, o:0.75, dz:0.16},
-    {w:0.85, h:1.5, c:0xff7a1e, o:0.85, dz:0.22},
-    {w:0.58, h:1.15, c:0xffb63a, o:0.9, dz:0.27},
-    {w:0.32, h:0.78, c:0xfff3b0, o:0.95, dz:0.31}
+    {w:1.55, h:2.35, c:0xB01E08, o:0.60, dz:0.08, dx:0},
+    {w:1.15, h:2.05, c:0xFF4A00, o:0.85, dz:0.14, dx:0},
+    {w:0.85, h:1.68, c:0xFF9500, o:0.92, dz:0.20, dx:0},
+    {w:0.55, h:1.28, c:0xFFD23A, o:0.95, dz:0.26, dx:0},
+    {w:0.28, h:0.88, c:0xFFF8D8, o:1.00, dz:0.31, dx:0},
+    {w:0.50, h:1.15, c:0xFF6A00, o:0.82, dz:0.17, dx:-0.44},
+    {w:0.44, h:0.98, c:0xFF8C00, o:0.82, dz:0.17, dx:0.42}
   ];
   layers.forEach(function(L, i){
-    var fm = new THREE.Mesh(new THREE.PlaneGeometry(L.w, L.h),
+    var fm = new THREE.Mesh(flameGeo(L.w, L.h),
       new THREE.MeshBasicMaterial({color:L.c, transparent:true, opacity:L.o, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
-    fm.position.set(fx, fy - 0.95 + L.h/2, L.dz);
-    fm.userData = {i:i, y0:fm.position.y, o0:L.o};
+    fm.position.set(fx + L.dx, fy - 0.95, L.dz);
+    fm.userData = {i:i, o0:L.o, side:(L.dx !== 0)};
     fireGroup.add(fm); flames.push(fm);
   });
-  var glow = new THREE.Mesh(new THREE.CircleGeometry(1.55, 24),
-    new THREE.MeshBasicMaterial({color:0xff5a10, transparent:true, opacity:0.15, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
-  glow.position.set(fx, fy, 0.06);
-  glow.userData = {glow:true, o0:0.15};
-  fireGroup.add(glow); flames.push(glow);
+  var glowOut = new THREE.Mesh(new THREE.CircleGeometry(1.75, 24),
+    new THREE.MeshBasicMaterial({color:0xFF5A00, transparent:true, opacity:0.20, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+  glowOut.position.set(fx, fy, 0.05);
+  glowOut.userData = {glow:true, i:0, o0:0.20};
+  fireGroup.add(glowOut); flames.push(glowOut);
+  var glowIn = new THREE.Mesh(new THREE.CircleGeometry(0.95, 20),
+    new THREE.MeshBasicMaterial({color:0xFFA030, transparent:true, opacity:0.28, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+  glowIn.position.set(fx, fy - 0.1, 0.06);
+  glowIn.userData = {glow:true, i:3, o0:0.28};
+  fireGroup.add(glowIn); flames.push(glowIn);
   for (var fj=0; fj<6; fj++){
-    var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9),
+    var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.95),
       new THREE.MeshBasicMaterial({color:0x23211f, transparent:true, opacity:0.32, depthWrite:false, side:THREE.DoubleSide}));
-    sm.position.set(fx + (fj%2 ? 0.25 : -0.2), fy + 0.7 + fj*0.42, 0.24);
-    sm.userData = {y0: sm.position.y, ph: fj*1.13, drift: (fj%2 ? 0.12 : -0.1)};
+    sm.position.set(fx + (fj%2 ? 0.28 : -0.22), fy + 0.9 + fj*0.42, 0.24);
+    sm.userData = {y0: sm.position.y, ph: fj*1.13, drift: (fj%2 ? 0.13 : -0.11)};
     fireGroup.add(sm); smokes.push(sm);
   }
-  fireLight = new THREE.PointLight(0xff7a2a, 0, 8);
-  fireLight.position.set(fx, fy + 0.3, 0.8);
+  for (var sk=0; sk<10; sk++){
+    var sp = new THREE.Mesh(new THREE.PlaneGeometry(0.055, 0.055),
+      new THREE.MeshBasicMaterial({color:0xFFC66A, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+    sp.position.set(fx + (Math.random()-0.5)*0.9, fy - 0.6 + Math.random()*1.6, 0.3);
+    sp.userData = {y0: fy - 0.6, vy: 1.0 + Math.random()*0.9, ph: Math.random()*6.28, amp: 0.25 + Math.random()*0.3};
+    fireGroup.add(sp); sparks.push(sp);
+  }
+  fireLight = new THREE.PointLight(0xFF7A2A, 0, 9);
+  fireLight.position.set(fx, fy + 0.4, 1.0);
   fireGroup.add(fireLight);
 })();
 /* ===== 机站（上/下转轴、链轮、支撑架）===== */
@@ -2228,23 +2273,33 @@ function tick(){
     var ft = performance.now()/1000;
     for (var fi2=0; fi2<flames.length; fi2++){
       var FL = flames[fi2], ud = FL.userData;
-      if (ud.glow){ FL.material.opacity = ud.o0*(0.8 + 0.35*Math.sin(ft*11.3)*Math.sin(ft*5.1)); continue; }
-      FL.scale.y = 1 + 0.22*(Math.sin(ft*(8+ud.i*2.7)+ud.i*1.7)*0.5 + Math.sin(ft*(17+ud.i*3.1))*0.3) + 0.1*Math.sin(ft*29+ud.i);
-      FL.scale.x = 1 + 0.12*Math.sin(ft*(9+ud.i)+2*ud.i);
-      FL.position.y = ud.y0 + 0.06*Math.sin(ft*13+ud.i*2.3);
-      FL.material.opacity = ud.o0*(0.82 + 0.18*Math.sin(ft*21+ud.i*2));
+      if (ud.glow){ FL.material.opacity = ud.o0*(0.72 + 0.4*Math.sin(ft*9.7+ud.i)*Math.sin(ft*5.3)); continue; }
+      var spd = ud.side ? 1.6 : 1.0;
+      FL.scale.y = 1 + 0.30*Math.sin(ft*(9+ud.i*2.3)*spd + ud.i*1.7)*Math.sin(ft*3.1+ud.i) + 0.12*Math.sin(ft*27+ud.i*4);
+      FL.scale.x = 1 + 0.14*Math.sin(ft*(11+ud.i)+2*ud.i);
+      FL.rotation.z = 0.10*Math.sin(ft*(6+ud.i*1.3)+ud.i);
+      FL.material.opacity = ud.o0*(0.85 + 0.15*Math.sin(ft*19+ud.i*2));
     }
     for (var sj=0; sj<smokes.length; sj++){
       var SM = smokes[sj], sud = SM.userData;
-      SM.position.y += dt*0.62;
+      SM.position.y += dt*0.6;
       SM.position.x += dt*sud.drift*Math.sin(performance.now()/900 + sud.ph);
-      var ph2 = (SM.position.y - sud.y0)/3.2;
+      var ph2 = (SM.position.y - sud.y0)/3.4;
       if (ph2 > 1){ SM.position.y = sud.y0; ph2 = 0; }
-      SM.material.opacity = 0.34*(1-ph2);
-      SM.scale.setScalar(0.8 + ph2*2.0);
-      SM.rotation.z = sud.ph + ph2*1.2;
+      SM.material.opacity = 0.35*(1-ph2);
+      SM.scale.setScalar(0.8 + ph2*2.2);
+      SM.rotation.z = sud.ph + ph2*1.3;
     }
-    fireLight.intensity = 1.7 + 0.9*Math.sin(performance.now()/70)*Math.sin(performance.now()/190);
+    for (var sk2=0; sk2<sparks.length; sk2++){
+      var SP = sparks[sk2], kud = SP.userData;
+      SP.position.y += dt*kud.vy;
+      SP.position.x += dt*kud.amp*Math.sin(ft*7 + kud.ph);
+      var ph3 = (SP.position.y - kud.y0)/2.6;
+      if (ph3 > 1){ SP.position.y = kud.y0; SP.position.x = 4.6 + (Math.random()-0.5)*0.9; ph3 = 0; }
+      SP.material.opacity = 0.95*(1-ph3*ph3);
+      SP.scale.setScalar(1 - 0.55*ph3);
+    }
+    fireLight.intensity = 2.3 + 1.1*Math.sin(performance.now()/60)*Math.sin(performance.now()/170) + 0.4*Math.sin(performance.now()/23);
   }
   /* 演示人物状态机 */
   var nowMs = performance.now();
@@ -2507,6 +2562,22 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
   <span><span class="lab">Speed</span><span id="st-v">0.00</span> m/s</span>
   <span><span class="lab">Brake</span><span id="brakestate" class="off">OFF</span></span>
 </div>
+
+<script>
+window.addEventListener('error', function(e){
+  var d = document.getElementById('errbar');
+  if (!d){
+    d = document.createElement('div'); d.id = 'errbar';
+    d.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#B8352B;color:#fff;font-size:12px;padding:6px 10px;font-family:monospace;word-break:break-all;';
+    (document.body || document.documentElement).appendChild(d);
+  }
+  d.textContent = 'ERR: ' + (e.message || e.type || '?') + ' @' + (e.lineno || 0);
+});
+setTimeout(function(){
+  try{ window.dispatchEvent(new Event('resize')); }
+  catch(err){ try{ var ev = document.createEvent('Event'); ev.initEvent('resize', true, false); window.dispatchEvent(ev); }catch(e2){} }
+}, 450);
+</script>
 
 <script>
 /**
@@ -3705,39 +3776,63 @@ ground.position.y = -0.05; scene.add(ground);
 /* 落地缓冲气囊/砂包（老先生图3） */
 var cushion = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.26, 0.95), std(0xd9822b, 0.75, 0.05));
 cushion.position.set(0, 0.13, 0.45); scene.add(cushion);
-/* ===== 着火演示（多层焰片+辉光+浮烟+闪烁光源） ===== */
+/* ===== 着火演示（火舌形焰片+火星+双层辉光+跳动光源） ===== */
 var fireGroup = new THREE.Group(); fireGroup.visible = false; scene.add(fireGroup);
-var flames = [], smokes = [], fireOn = false, fireLight;
+var flames = [], smokes = [], sparks = [], fireOn = false, fireLight;
 (function(){
   var fx = 4.6, fy = 14.0;
+  function flameGeo(w, h){
+    var g = new THREE.BufferGeometry();
+    var v = new Float32Array([
+      0, 0, 0,   w*0.5, h*0.26, 0,   w*0.36, h*0.60, 0,
+      0, h, 0,  -w*0.36, h*0.60, 0, -w*0.5, h*0.26, 0
+    ]);
+    g.setAttribute('position', new THREE.BufferAttribute(v, 3));
+    g.setIndex([0,1,2, 0,2,3, 0,3,4, 0,4,5]);
+    return g;
+  }
   var layers = [
-    {w:1.35, h:2.0, c:0x8f1a0a, o:0.55, dz:0.10},
-    {w:1.05, h:1.75, c:0xd93b12, o:0.75, dz:0.16},
-    {w:0.85, h:1.5, c:0xff7a1e, o:0.85, dz:0.22},
-    {w:0.58, h:1.15, c:0xffb63a, o:0.9, dz:0.27},
-    {w:0.32, h:0.78, c:0xfff3b0, o:0.95, dz:0.31}
+    {w:1.55, h:2.35, c:0xB01E08, o:0.60, dz:0.08, dx:0},
+    {w:1.15, h:2.05, c:0xFF4A00, o:0.85, dz:0.14, dx:0},
+    {w:0.85, h:1.68, c:0xFF9500, o:0.92, dz:0.20, dx:0},
+    {w:0.55, h:1.28, c:0xFFD23A, o:0.95, dz:0.26, dx:0},
+    {w:0.28, h:0.88, c:0xFFF8D8, o:1.00, dz:0.31, dx:0},
+    {w:0.50, h:1.15, c:0xFF6A00, o:0.82, dz:0.17, dx:-0.44},
+    {w:0.44, h:0.98, c:0xFF8C00, o:0.82, dz:0.17, dx:0.42}
   ];
   layers.forEach(function(L, i){
-    var fm = new THREE.Mesh(new THREE.PlaneGeometry(L.w, L.h),
+    var fm = new THREE.Mesh(flameGeo(L.w, L.h),
       new THREE.MeshBasicMaterial({color:L.c, transparent:true, opacity:L.o, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
-    fm.position.set(fx, fy - 0.95 + L.h/2, L.dz);
-    fm.userData = {i:i, y0:fm.position.y, o0:L.o};
+    fm.position.set(fx + L.dx, fy - 0.95, L.dz);
+    fm.userData = {i:i, o0:L.o, side:(L.dx !== 0)};
     fireGroup.add(fm); flames.push(fm);
   });
-  var glow = new THREE.Mesh(new THREE.CircleGeometry(1.55, 24),
-    new THREE.MeshBasicMaterial({color:0xff5a10, transparent:true, opacity:0.15, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
-  glow.position.set(fx, fy, 0.06);
-  glow.userData = {glow:true, o0:0.15};
-  fireGroup.add(glow); flames.push(glow);
+  var glowOut = new THREE.Mesh(new THREE.CircleGeometry(1.75, 24),
+    new THREE.MeshBasicMaterial({color:0xFF5A00, transparent:true, opacity:0.20, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+  glowOut.position.set(fx, fy, 0.05);
+  glowOut.userData = {glow:true, i:0, o0:0.20};
+  fireGroup.add(glowOut); flames.push(glowOut);
+  var glowIn = new THREE.Mesh(new THREE.CircleGeometry(0.95, 20),
+    new THREE.MeshBasicMaterial({color:0xFFA030, transparent:true, opacity:0.28, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+  glowIn.position.set(fx, fy - 0.1, 0.06);
+  glowIn.userData = {glow:true, i:3, o0:0.28};
+  fireGroup.add(glowIn); flames.push(glowIn);
   for (var fj=0; fj<6; fj++){
-    var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9),
+    var sm = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.95),
       new THREE.MeshBasicMaterial({color:0x23211f, transparent:true, opacity:0.32, depthWrite:false, side:THREE.DoubleSide}));
-    sm.position.set(fx + (fj%2 ? 0.25 : -0.2), fy + 0.7 + fj*0.42, 0.24);
-    sm.userData = {y0: sm.position.y, ph: fj*1.13, drift: (fj%2 ? 0.12 : -0.1)};
+    sm.position.set(fx + (fj%2 ? 0.28 : -0.22), fy + 0.9 + fj*0.42, 0.24);
+    sm.userData = {y0: sm.position.y, ph: fj*1.13, drift: (fj%2 ? 0.13 : -0.11)};
     fireGroup.add(sm); smokes.push(sm);
   }
-  fireLight = new THREE.PointLight(0xff7a2a, 0, 8);
-  fireLight.position.set(fx, fy + 0.3, 0.8);
+  for (var sk=0; sk<10; sk++){
+    var sp = new THREE.Mesh(new THREE.PlaneGeometry(0.055, 0.055),
+      new THREE.MeshBasicMaterial({color:0xFFC66A, transparent:true, opacity:0.95, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide}));
+    sp.position.set(fx + (Math.random()-0.5)*0.9, fy - 0.6 + Math.random()*1.6, 0.3);
+    sp.userData = {y0: fy - 0.6, vy: 1.0 + Math.random()*0.9, ph: Math.random()*6.28, amp: 0.25 + Math.random()*0.3};
+    fireGroup.add(sp); sparks.push(sp);
+  }
+  fireLight = new THREE.PointLight(0xFF7A2A, 0, 9);
+  fireLight.position.set(fx, fy + 0.4, 1.0);
   fireGroup.add(fireLight);
 })();
 /* ===== 机站（上/下转轴、链轮、支撑架）===== */
@@ -4052,23 +4147,33 @@ function tick(){
     var ft = performance.now()/1000;
     for (var fi2=0; fi2<flames.length; fi2++){
       var FL = flames[fi2], ud = FL.userData;
-      if (ud.glow){ FL.material.opacity = ud.o0*(0.8 + 0.35*Math.sin(ft*11.3)*Math.sin(ft*5.1)); continue; }
-      FL.scale.y = 1 + 0.22*(Math.sin(ft*(8+ud.i*2.7)+ud.i*1.7)*0.5 + Math.sin(ft*(17+ud.i*3.1))*0.3) + 0.1*Math.sin(ft*29+ud.i);
-      FL.scale.x = 1 + 0.12*Math.sin(ft*(9+ud.i)+2*ud.i);
-      FL.position.y = ud.y0 + 0.06*Math.sin(ft*13+ud.i*2.3);
-      FL.material.opacity = ud.o0*(0.82 + 0.18*Math.sin(ft*21+ud.i*2));
+      if (ud.glow){ FL.material.opacity = ud.o0*(0.72 + 0.4*Math.sin(ft*9.7+ud.i)*Math.sin(ft*5.3)); continue; }
+      var spd = ud.side ? 1.6 : 1.0;
+      FL.scale.y = 1 + 0.30*Math.sin(ft*(9+ud.i*2.3)*spd + ud.i*1.7)*Math.sin(ft*3.1+ud.i) + 0.12*Math.sin(ft*27+ud.i*4);
+      FL.scale.x = 1 + 0.14*Math.sin(ft*(11+ud.i)+2*ud.i);
+      FL.rotation.z = 0.10*Math.sin(ft*(6+ud.i*1.3)+ud.i);
+      FL.material.opacity = ud.o0*(0.85 + 0.15*Math.sin(ft*19+ud.i*2));
     }
     for (var sj=0; sj<smokes.length; sj++){
       var SM = smokes[sj], sud = SM.userData;
-      SM.position.y += dt*0.62;
+      SM.position.y += dt*0.6;
       SM.position.x += dt*sud.drift*Math.sin(performance.now()/900 + sud.ph);
-      var ph2 = (SM.position.y - sud.y0)/3.2;
+      var ph2 = (SM.position.y - sud.y0)/3.4;
       if (ph2 > 1){ SM.position.y = sud.y0; ph2 = 0; }
-      SM.material.opacity = 0.34*(1-ph2);
-      SM.scale.setScalar(0.8 + ph2*2.0);
-      SM.rotation.z = sud.ph + ph2*1.2;
+      SM.material.opacity = 0.35*(1-ph2);
+      SM.scale.setScalar(0.8 + ph2*2.2);
+      SM.rotation.z = sud.ph + ph2*1.3;
     }
-    fireLight.intensity = 1.7 + 0.9*Math.sin(performance.now()/70)*Math.sin(performance.now()/190);
+    for (var sk2=0; sk2<sparks.length; sk2++){
+      var SP = sparks[sk2], kud = SP.userData;
+      SP.position.y += dt*kud.vy;
+      SP.position.x += dt*kud.amp*Math.sin(ft*7 + kud.ph);
+      var ph3 = (SP.position.y - kud.y0)/2.6;
+      if (ph3 > 1){ SP.position.y = kud.y0; SP.position.x = 4.6 + (Math.random()-0.5)*0.9; ph3 = 0; }
+      SP.material.opacity = 0.95*(1-ph3*ph3);
+      SP.scale.setScalar(1 - 0.55*ph3);
+    }
+    fireLight.intensity = 2.3 + 1.1*Math.sin(performance.now()/60)*Math.sin(performance.now()/170) + 0.4*Math.sin(performance.now()/23);
   }
   /* 演示人物状态机 */
   var nowMs = performance.now();
@@ -4224,14 +4329,18 @@ window.addEventListener('resize', function(){
   var saved = null;
   try{ saved = localStorage.getItem('cre_lang'); }catch(e){}
   setLang(saved || 'cn');
+  if (/^https?:$/.test(location.protocol)){
+    var dlk = document.getElementById('demolinks');
+    if (dlk) dlk.style.display = 'block';
+  }
 
   var launched = false;
   document.getElementById('demolaunch').addEventListener('click', function(){
     if (launched) return;
     var lang = html.getAttribute('data-lang');
-    var coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+    var coarse = ('ontouchstart' in window) || (window.matchMedia && (window.matchMedia('(pointer:coarse)').matches || window.matchMedia('(max-width: 900px)').matches));
     if (coarse && /^https?:$/.test(location.protocol)){
-      location.href = lang === 'en' ? 'demo-en.html' : 'demo-cn.html';
+      location.href = (lang === 'en' ? 'demo-en.html' : 'demo-cn.html') + '?v=7';
       return;
     }
     launched = true;
@@ -4239,7 +4348,7 @@ window.addEventListener('resize', function(){
     var tpl = document.getElementById(lang === 'en' ? 'demoEN' : 'demoCN');
     var frame = document.getElementById('demoframe');
     frame.style.display = 'block';
-    frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0">' + tpl.innerHTML + '</body></html>';
+    frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0">' + tpl.innerHTML + '</body></html>';
     document.getElementById('demo-cover').style.display = 'none';
     var fsbtn = document.getElementById('fsbtn');
     fsbtn.hidden = false;
