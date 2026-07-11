@@ -1305,11 +1305,30 @@ function pathTangent(s, out){
 
 /* ===== 渲染器 ===== */
 var stage = document.getElementById('stage');
-var renderer;
-try { renderer = new THREE.WebGLRenderer({antialias:true}); }
-catch(e){
-  try { renderer = new THREE.WebGL1Renderer({antialias:false}); }
-  catch(e2){ stage.innerHTML = '<p style="padding:2em">此设备不支持 3D 显示。</p>'; return; }
+var renderer = null;
+(function(){
+  var probe = document.createElement('canvas');
+  var glok = false;
+  try {
+    glok = !!(window.WebGLRenderingContext && (probe.getContext('webgl') || probe.getContext('experimental-webgl')));
+  } catch(e){}
+  if (glok){
+    var opts = [{antialias:true}, {antialias:false, powerPreference:'default'}];
+    for (var oi=0; oi<opts.length && !renderer; oi++){
+      try { renderer = new THREE.WebGLRenderer(opts[oi]); } catch(e){}
+    }
+    if (!renderer && THREE.WebGL1Renderer){
+      try { renderer = new THREE.WebGL1Renderer({antialias:false}); } catch(e){}
+    }
+  }
+})();
+if (!renderer){
+  window.__appok = 'nogl';
+  if (window.__bootbadge){
+    window.__bootbadge.style.background = '#B8352B';
+    window.__bootbadge.innerHTML = '当前浏览器未开启 3D（WebGL）支持。<br>微信内请点右上角「···」→「在浏览器打开」，<br>或改用手机自带浏览器访问本页。';
+  }
+  return;
 }
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
