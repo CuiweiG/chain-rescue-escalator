@@ -140,6 +140,22 @@ setTimeout(function(){
 </script>
 
 <script>
+(function(){
+  var b = document.createElement('div');
+  b.id = 'bootbadge';
+  b.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9998;background:rgba(16,43,69,.92);color:#fff;font-size:16px;padding:14px 24px;border-radius:10px;font-family:sans-serif;text-align:center;line-height:1.6;max-width:80vw';
+  b.textContent = '3D 引擎加载中…';
+  if (document.body) document.body.appendChild(b);
+  window.__bootbadge = b;
+  setTimeout(function(){
+    if (window.__appok) return;
+    b.style.background = '#B8352B';
+    b.innerHTML = window.THREE ? '3D 初始化失败。<br>请把屏幕底部红色错误条截图反馈。' : '您的浏览器内核较旧，无法运行 3D 引擎。<br>请改用手机自带浏览器打开，或升级微信后重试。';
+  }, 6000);
+})();
+</script>
+
+<script>
 /**
  * @license
  * Copyright 2010-2022 Three.js Authors
@@ -1291,11 +1307,16 @@ function pathTangent(s, out){
 var stage = document.getElementById('stage');
 var renderer;
 try { renderer = new THREE.WebGLRenderer({antialias:true}); }
-catch(e){ stage.innerHTML = '<p style="padding:2em">此设备不支持 3D 显示。</p>'; return; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+catch(e){
+  try { renderer = new THREE.WebGL1Renderer({antialias:false}); }
+  catch(e2){ stage.innerHTML = '<p style="padding:2em">此设备不支持 3D 显示。</p>'; return; }
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 stage.appendChild(renderer.domElement);
+window.__appok = true;
+if (window.__bootbadge && window.__bootbadge.parentNode){ window.__bootbadge.parentNode.removeChild(window.__bootbadge); }
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(46, window.innerWidth/window.innerHeight, 0.05, 400);

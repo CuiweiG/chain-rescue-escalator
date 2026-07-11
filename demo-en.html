@@ -139,6 +139,22 @@ setTimeout(function(){
 </script>
 
 <script>
+(function(){
+  var b = document.createElement('div');
+  b.id = 'bootbadge';
+  b.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:9998;background:rgba(16,43,69,.92);color:#fff;font-size:16px;padding:14px 24px;border-radius:10px;font-family:sans-serif;text-align:center;line-height:1.6;max-width:80vw';
+  b.textContent = 'Loading 3D engine…';
+  if (document.body) document.body.appendChild(b);
+  window.__bootbadge = b;
+  setTimeout(function(){
+    if (window.__appok) return;
+    b.style.background = '#B8352B';
+    b.innerHTML = window.THREE ? '3D initialisation failed.<br>Please screenshot the red error bar at the bottom.' : 'Your browser engine is too old to run the 3D engine.<br>Please open with the system browser or update your app.';
+  }, 6000);
+})();
+</script>
+
+<script>
 /**
  * @license
  * Copyright 2010-2022 Three.js Authors
@@ -1290,11 +1306,16 @@ function pathTangent(s, out){
 var stage = document.getElementById('stage');
 var renderer;
 try { renderer = new THREE.WebGLRenderer({antialias:true}); }
-catch(e){ stage.innerHTML = '<p style="padding:2em">This device does not support 3D rendering.</p>'; return; }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+catch(e){
+  try { renderer = new THREE.WebGL1Renderer({antialias:false}); }
+  catch(e2){ stage.innerHTML = '<p style="padding:2em">This device does not support 3D rendering.</p>'; return; }
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputEncoding = THREE.sRGBEncoding;
 stage.appendChild(renderer.domElement);
+window.__appok = true;
+if (window.__bootbadge && window.__bootbadge.parentNode){ window.__bootbadge.parentNode.removeChild(window.__bootbadge); }
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera(46, window.innerWidth/window.innerHeight, 0.05, 400);
