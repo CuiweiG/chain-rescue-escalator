@@ -28,7 +28,7 @@ a{color:inherit}
 
 /* ---------- 导航 ---------- */
 nav{
-  position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:22px;
+  position:-webkit-sticky; position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:22px;
   padding:14px 5vw; background:rgba(16,43,69,.93); background:color-mix(in srgb, var(--bp) 92%, transparent);
   backdrop-filter:blur(10px); color:#E8EEF4;
 }
@@ -61,9 +61,9 @@ header.hero{
   color:#9FC3E4; border:1px solid rgba(159,195,228,.35); border-radius:999px; padding:6px 18px;
 }
 .eyebrow i{width:7px;height:7px;border-radius:50%;background:#FF6B5A;display:inline-block}
-h1{font-size:clamp(34px, 5vw, 58px); line-height:1.22; margin:26px 0 8px; text-wrap:balance; font-weight:700}
+h1{font-size:40px; font-size:clamp(34px, 5vw, 58px); line-height:1.22; margin:26px 0 8px; text-wrap:balance; font-weight:700}
 h1 em{font-style:normal; color:#FF8A7A}
-.hero p.lead{font-size:clamp(16px,1.6vw,19.5px); color:#C4D5E5; max-width:34em; margin:14px 0 34px}
+.hero p.lead{font-size:18px; font-size:clamp(16px,1.6vw,19.5px); color:#C4D5E5; max-width:34em; margin:14px 0 34px}
 .cta{display:flex; gap:14px; flex-wrap:wrap}
 .btn{
   display:inline-block; text-decoration:none; font-size:16px; font-weight:600;
@@ -92,7 +92,7 @@ h1 em{font-style:normal; color:#FF8A7A}
   animation:chainrun 4.2s linear infinite;
 }
 .chain-col.rev::before{animation-direction:reverse; opacity:.45}
-.rungs{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:space-around; align-items:center}
+.rungs{position:absolute; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; justify-content:space-around; align-items:center}
 .rungs span{display:block; width:150px; height:7px; border-radius:4px; background:#B9CFDF; box-shadow:0 2px 8px rgba(0,0,0,.35)}
 @keyframes chainrun{ from{transform:translateY(0)} to{transform:translateY(96px)} }
 @media (prefers-reduced-motion: reduce){ .chain-col::before{animation:none} }
@@ -121,7 +121,7 @@ body{overflow-x:hidden}
 .stats{background:var(--bp2); color:#DFE9F2; padding:0 5vw}
 .stats-in{max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid var(--line-bp)}
 .stat{padding:26px 24px; border-right:1px solid var(--line-bp)}
-.stat b{display:block; font-size:clamp(24px,2.6vw,34px); font-family:Georgia,serif; color:#fff; font-variant-numeric:tabular-nums}
+.stat b{display:block; font-size:28px; font-size:clamp(24px,2.6vw,34px); font-family:Georgia,serif; color:#fff; font-variant-numeric:tabular-nums}
 .stat i{font-style:normal; font-size:13.5px; color:#93A9BC; letter-spacing:.04em}
 @media (max-width:760px){ .stats-in{grid-template-columns:repeat(2,1fr)} }
 
@@ -129,7 +129,7 @@ body{overflow-x:hidden}
 section{padding:84px 5vw; scroll-margin-top:64px}
 .wrap{max-width:1180px; margin:0 auto}
 .sec-eyebrow{font-size:13px; letter-spacing:.24em; color:var(--red); font-weight:700}
-h2{font-size:clamp(26px,3.2vw,40px); margin:12px 0 18px; line-height:1.3; text-wrap:balance}
+h2{font-size:32px; font-size:clamp(26px,3.2vw,40px); margin:12px 0 18px; line-height:1.3; text-wrap:balance}
 .sec-lead{color:var(--ink2); max-width:44em; font-size:17px}
 section.alt{background:var(--paper2)}
 
@@ -181,7 +181,7 @@ section.alt{background:var(--paper2)}
 }
 .fs-btn:hover{border-color:#FF8A7A}
 .demo-shell.fakefull{
-  position:fixed !important; inset:0 !important; z-index:1000;
+  position:fixed !important; top:0 !important; left:0 !important; right:0 !important; bottom:0 !important; z-index:1000;
   aspect-ratio:auto !important; height:100vh !important; height:100dvh !important; min-height:0 !important;
   border-radius:0 !important; margin:0 !important; border:none !important;
 }
@@ -193,7 +193,7 @@ body.fslock{overflow:hidden}
   padding:6px 16px; pointer-events:none; display:none; white-space:nowrap;
 }
 #demo-cover{
-  position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:absolute; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:18px; color:#DFE9F2; text-align:center; padding:24px;
   background:
     repeating-linear-gradient(0deg, transparent 0 47px, var(--line-bp) 47px 48px),
@@ -241,7 +241,7 @@ body.fslock{overflow:hidden}
   box-shadow:0 8px 26px rgba(16,43,69,.07);
 }
 @media (max-width:760px){ .stdbox{grid-template-columns:1fr} }
-.stdbox .gbno{font-family:Georgia,serif; font-size:clamp(22px,2.4vw,30px); color:var(--gold); white-space:nowrap}
+.stdbox .gbno{font-family:Georgia,serif; font-size:26px; font-size:clamp(22px,2.4vw,30px); color:var(--gold); white-space:nowrap}
 .stdbox p{margin:0; color:var(--ink2)}
 .stdbox p b{color:var(--ink)}
 
@@ -289,6 +289,15 @@ footer.site .wrap{max-width:1180px}
 footer.site b{color:#A9BCCC}
 
 ::selection{background:var(--red); color:#fff}
+
+/* ===== 老内核兼容回退间距 ===== */
+.cta .btn{margin:0 12px 12px 0}
+.patents-chip .pchip{margin:0 10px 10px 0}
+.demo-tips span{margin:0 8px 8px 0}
+.factlist li{margin-bottom:14px}
+.contact>b{margin-right:12px}
+#langbtn{margin-left:14px}
+
 </style>
 
 <nav>
@@ -569,7 +578,7 @@ footer.site b{color:#A9BCCC}
 html,body{height:100%;margin:0}
 body{ background:var(--bg); color:var(--ink); overflow:hidden;
   font-family:-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif; font-size:16px; line-height:1.6; }
-#stage{position:fixed; inset:0}
+#stage{position:fixed; top:0; left:0; right:0; bottom:0}
 canvas{display:block}
 #topbar{ position:fixed; top:0; left:0; right:0; z-index:20; display:flex; align-items:center; gap:14px;
   padding:12px 18px; background:linear-gradient(to bottom, var(--bg) 30%, transparent); pointer-events:none; }
@@ -605,7 +614,7 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
 #status .lab{font-size:12px; color:var(--ink-2); margin-right:4px}
 #brakestate.on{color:var(--accent); font-weight:700}
 #brakestate.off{color:var(--ok); font-weight:700}
-#labels{position:fixed; inset:0; z-index:5; pointer-events:none; overflow:hidden}
+#labels{position:fixed; top:0; left:0; right:0; bottom:0; z-index:5; pointer-events:none; overflow:hidden}
 .lbl{ position:absolute; transform:translate(-50%,-130%); background:var(--panel); border:1px solid var(--line);
   border-radius:6px; padding:2px 9px; font-size:13.5px; white-space:nowrap; color:var(--ink);
   box-shadow:0 2px 8px rgba(0,0,0,.12); }
@@ -618,6 +627,15 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
   #status{bottom:auto; top:72px; right:8px}
   #topbar{flex-wrap:wrap}
 }
+
+/* ===== 老内核兼容回退（flex gap 不支持时的间距） ===== */
+#controls>*{margin-left:8px}
+#controls>:first-child{margin-left:0}
+#status>span{margin-right:12px}
+#status>span:last-child{margin-right:0}
+.scen button{margin-bottom:5px}
+#panel>*{margin-bottom:8px}
+
 </style>
 
 <div id="stage"></div>
@@ -2385,7 +2403,7 @@ window.addEventListener('resize', function(){
 html,body{height:100%;margin:0}
 body{ background:var(--bg); color:var(--ink); overflow:hidden;
   font-family:-apple-system,"Segoe UI",Roboto,sans-serif; font-size:16px; line-height:1.6; }
-#stage{position:fixed; inset:0}
+#stage{position:fixed; top:0; left:0; right:0; bottom:0}
 canvas{display:block}
 #topbar{ position:fixed; top:0; left:0; right:0; z-index:20; display:flex; align-items:center; gap:14px;
   padding:12px 18px; background:linear-gradient(to bottom, var(--bg) 30%, transparent); pointer-events:none; }
@@ -2420,7 +2438,7 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
 #status .lab{font-size:12px; color:var(--ink-2); margin-right:4px}
 #brakestate.on{color:var(--accent); font-weight:700}
 #brakestate.off{color:var(--ok); font-weight:700}
-#labels{position:fixed; inset:0; z-index:5; pointer-events:none; overflow:hidden}
+#labels{position:fixed; top:0; left:0; right:0; bottom:0; z-index:5; pointer-events:none; overflow:hidden}
 .lbl{ position:absolute; transform:translate(-50%,-130%); background:var(--panel); border:1px solid var(--line);
   border-radius:6px; padding:2px 9px; font-size:13.5px; white-space:nowrap; color:var(--ink);
   box-shadow:0 2px 8px rgba(0,0,0,.12); }
@@ -2433,6 +2451,15 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
   #status{bottom:auto; top:72px; right:8px}
   #topbar{flex-wrap:wrap}
 }
+
+/* ===== 老内核兼容回退（flex gap 不支持时的间距） ===== */
+#controls>*{margin-left:8px}
+#controls>:first-child{margin-left:0}
+#status>span{margin-right:12px}
+#status>span:last-child{margin-right:0}
+.scen button{margin-bottom:5px}
+#panel>*{margin-bottom:8px}
+
 </style>
 
 <div id="stage"></div>
