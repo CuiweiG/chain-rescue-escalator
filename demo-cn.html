@@ -90,6 +90,19 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
   #status{padding:5px 9px; font-size:11px}
   .lbl{font-size:11px}
 }
+
+/* ===== 手机横屏专用布局（矮而宽的视口：两系统统一成侧栏式，画面最大化） ===== */
+@media (max-height:520px) and (orientation:landscape){
+  #topbar{padding:4px 8px}
+  #title{display:none}
+  #controls{padding:4px 6px}
+  #controls button{font-size:12px; padding:4px 8px}
+  #panel{left:8px; right:auto; top:48px; bottom:8px; width:240px; max-height:none}
+  #panel.hidden{display:none}
+  #status{top:auto; bottom:8px; right:8px; font-size:11px; padding:4px 8px}
+  #speedwrap label{display:none}
+  #speed{width:70px}
+}
 </style>
 
 <div id="stage"></div>
@@ -209,6 +222,24 @@ setTimeout(function(){
   document.addEventListener('fullscreenchange', function(){
     if (!document.fullscreenElement){ b.textContent = '⛶ 横屏'; }
   });
+})();
+</script>
+
+<script>
+(function(){
+  function kick(){
+    [120, 400, 900].forEach(function(d){
+      setTimeout(function(){
+        try{ window.dispatchEvent(new Event('resize')); }
+        catch(e){ try{ var ev = document.createEvent('Event'); ev.initEvent('resize', true, false); window.dispatchEvent(ev); }catch(e2){} }
+      }, d);
+    });
+  }
+  window.addEventListener('orientationchange', kick);
+  document.addEventListener('fullscreenchange', kick);
+  if (screen.orientation && screen.orientation.addEventListener){
+    try{ screen.orientation.addEventListener('change', kick); }catch(e){}
+  }
 })();
 </script>
 
