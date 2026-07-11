@@ -74,6 +74,21 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
 .scen button{margin-bottom:5px}
 #panel>*{margin-bottom:8px}
 
+
+/* ===== 手机紧凑顶栏：把画面还给动画 ===== */
+@media (max-width:760px){
+  #topbar{padding:6px 8px}
+  #title h1{font-size:15px}
+  #title .sub{display:none}
+  #controls{padding:4px 6px; border-radius:8px}
+  #controls button{font-size:12px; padding:5px 8px}
+  #controls>*{margin-left:5px}
+  #speedwrap label{display:none}
+  #speed{width:74px}
+  #speedval{min-width:52px; font-size:11px}
+  #status{padding:5px 9px; font-size:11px}
+  .lbl{font-size:11px}
+}
 </style>
 
 <div id="stage"></div>
