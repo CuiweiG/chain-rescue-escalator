@@ -173,6 +173,25 @@ section.alt{background:var(--paper2)}
   background:var(--bp2); position:relative; aspect-ratio:16/9.6; min-height:520px;
 }
 #demoframe{width:100%; height:100%; border:0; display:none}
+.fs-btn{
+  position:absolute; top:12px; right:12px; z-index:5;
+  font:inherit; font-size:14px; font-weight:600; cursor:pointer;
+  background:rgba(11,31,51,.78); color:#EAF1F8; border:1px solid rgba(159,195,228,.5);
+  border-radius:9px; padding:8px 14px; backdrop-filter:blur(6px);
+}
+.fs-btn:hover{border-color:#FF8A7A}
+.demo-shell.fakefull{
+  position:fixed !important; inset:0 !important; z-index:1000;
+  aspect-ratio:auto !important; height:100dvh !important; min-height:0 !important;
+  border-radius:0 !important; margin:0 !important; border:none !important;
+}
+body.fslock{overflow:hidden}
+.demo-shell:fullscreen{aspect-ratio:auto; height:100%; border-radius:0}
+#rotatehint{
+  position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:5;
+  font-size:12.5px; color:#C4D5E5; background:rgba(11,31,51,.7); border-radius:999px;
+  padding:6px 16px; pointer-events:none; display:none; white-space:nowrap;
+}
 #demo-cover{
   position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:18px; color:#DFE9F2; text-align:center; padding:24px;
@@ -398,8 +417,10 @@ footer.site b{color:#A9BCCC}
     <h2><span class="cn">亲手转一转这台机器</span><span class="en">Take the machine for a spin</span></h2>
     <p class="sec-lead"><span class="cn">基于两代已公开专利文本复原的三维概念演示：拖动旋转、滚轮缩放；试试「着火演示」，看多层住户如何同时从窗口登梯撤离。</span>
        <span class="en">A 3D concept reconstruction built strictly from the two published patents: drag to orbit, scroll to zoom — and try the Fire Drill to watch residents board from their windows on several floors at once.</span></p>
-    <div class="demo-shell">
+    <div class="demo-shell" id="demoshell">
       <iframe id="demoframe" title="Chain Rescue Escalator 3D demo" loading="lazy"></iframe>
+      <button id="fsbtn" class="fs-btn" hidden>⛶ <span class="cn">横屏全屏</span><span class="en">Fullscreen</span></button>
+      <div id="rotatehint"><span class="cn">📱 建议横屏观看</span><span class="en">📱 Best viewed in landscape</span></div>
       <div id="demo-cover">
         <h3 class="serif" style="font-size:26px;margin:0"><span class="cn">链形滚梯 · 实时三维演示</span><span class="en">Chain Rescue Escalator · Live 3D</span></h3>
         <p class="hint"><span class="cn">内含真实比例的整机模型、乘梯人物动画、着火撤离与地面手刹演示。全部在您的浏览器本地运行。</span>
@@ -2074,6 +2095,11 @@ var camTween = null, curView = 'overview';
 var infoEl = document.getElementById('info');
 function setView(name){
   curView = name;
+  /* 手机端：选视角后自动收起面板，露出画面（顶部"面板"按钮可唤回） */
+  if (window.innerWidth <= 760){
+    var pn = document.getElementById('panel');
+    if (pn) pn.classList.add('hidden');
+  }
   document.querySelectorAll('.views button').forEach(function(b){
     b.classList.toggle('active', b.dataset.view === name);
   });
@@ -3884,6 +3910,11 @@ var camTween = null, curView = 'overview';
 var infoEl = document.getElementById('info');
 function setView(name){
   curView = name;
+  /* 手机端：选视角后自动收起面板，露出画面（顶部"面板"按钮可唤回） */
+  if (window.innerWidth <= 760){
+    var pn = document.getElementById('panel');
+    if (pn) pn.classList.add('hidden');
+  }
   document.querySelectorAll('.views button').forEach(function(b){
     b.classList.toggle('active', b.dataset.view === name);
   });
@@ -4177,6 +4208,48 @@ window.addEventListener('resize', function(){
     frame.style.display = 'block';
     frame.srcdoc = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0">' + tpl.innerHTML + '</body></html>';
     document.getElementById('demo-cover').style.display = 'none';
+    var fsbtn = document.getElementById('fsbtn');
+    fsbtn.hidden = false;
+    if (window.matchMedia && window.matchMedia('(max-width:820px) and (orientation:portrait)').matches){
+      var rh = document.getElementById('rotatehint');
+      rh.style.display = 'block';
+      setTimeout(function(){ rh.style.display = 'none'; }, 6000);
+    }
+  });
+
+  /* 全屏（安卓：系统全屏+锁横屏；iOS：满屏覆盖兜底） */
+  var shell = document.getElementById('demoshell');
+  var fsbtn = document.getElementById('fsbtn');
+  var fake = false;
+  function fsLabel(on){
+    fsbtn.innerHTML = on
+      ? '✕ <span class="cn">退出全屏</span><span class="en">Exit</span>'
+      : '⛶ <span class="cn">横屏全屏</span><span class="en">Fullscreen</span>';
+    var l = html.getAttribute('data-lang');
+    html.setAttribute('data-lang', l); // 触发语言样式重算
+  }
+  function lockLandscape(){
+    try{
+      if (screen.orientation && screen.orientation.lock){
+        screen.orientation.lock('landscape').catch(function(){});
+      }
+    }catch(e){}
+  }
+  function enterFake(){ fake = true; shell.classList.add('fakefull'); document.body.classList.add('fslock'); fsLabel(true); }
+  function exitFake(){ fake = false; shell.classList.remove('fakefull'); document.body.classList.remove('fslock'); fsLabel(false); }
+  fsbtn.addEventListener('click', function(){
+    if (document.fullscreenElement){ document.exitFullscreen(); return; }
+    if (fake){ exitFake(); return; }
+    if (shell.requestFullscreen){
+      try{
+        shell.requestFullscreen().then(lockLandscape).catch(enterFake);
+      }catch(e){ enterFake(); }
+    } else { enterFake(); }
+  });
+  document.addEventListener('fullscreenchange', function(){
+    var on = !!document.fullscreenElement;
+    if (!on){ try{ if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){} }
+    fsLabel(on);
   });
 })();
 </script>
