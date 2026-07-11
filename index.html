@@ -20,7 +20,7 @@ body{
 }
 .en{display:none}
 html[data-lang="en"] .cn{display:none}
-html[data-lang="en"] .en{display:revert}
+html[data-lang="en"] .en{display:inline}
 h1,h2,h3,.serif{font-family:"Noto Serif SC","Source Han Serif SC","Songti SC","SimSun",Georgia,serif}
 html[data-lang="en"] h1, html[data-lang="en"] h2, html[data-lang="en"] h3{font-family:Georgia,"Times New Roman",serif}
 img,svg{max-width:100%}
@@ -29,7 +29,7 @@ a{color:inherit}
 /* ---------- 导航 ---------- */
 nav{
   position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:22px;
-  padding:14px 5vw; background:color-mix(in srgb, var(--bp) 92%, transparent);
+  padding:14px 5vw; background:rgba(16,43,69,.93); background:color-mix(in srgb, var(--bp) 92%, transparent);
   backdrop-filter:blur(10px); color:#E8EEF4;
 }
 nav .logo{font-weight:700; letter-spacing:.06em; font-size:17px}
@@ -138,13 +138,13 @@ section.alt{background:var(--paper2)}
 @media (max-width:860px){ .grim{grid-template-columns:1fr} }
 .grim blockquote{
   margin:26px 0 0; padding:20px 26px; border-left:4px solid var(--red);
-  background:color-mix(in srgb, var(--red) 6%, var(--paper)); border-radius:0 10px 10px 0;
+  background:rgba(200,55,45,.07); background:color-mix(in srgb, var(--red) 6%, var(--paper)); border-radius:0 10px 10px 0;
   font-size:16px; color:var(--ink);
 }
 .grim blockquote small{color:var(--ink2)}
 .factlist{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:16px}
 .factlist li{
-  background:var(--paper); border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  background:var(--paper); border:1px solid rgba(34,48,61,.15); border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius:var(--radius); padding:18px 22px; box-shadow:0 6px 18px rgba(16,43,69,.06);
 }
 .factlist b{color:var(--red)}
@@ -153,7 +153,7 @@ section.alt{background:var(--paper2)}
 .principle{display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-top:44px}
 @media (max-width:860px){ .principle{grid-template-columns:1fr} }
 .pcard{
-  background:var(--paper); border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  background:var(--paper); border:1px solid rgba(34,48,61,.15); border:1px solid color-mix(in srgb, var(--ink) 12%, transparent);
   border-radius:var(--radius); padding:30px 28px; box-shadow:0 8px 24px rgba(16,43,69,.07);
 }
 .pcard .num{
@@ -169,7 +169,7 @@ section.alt{background:var(--paper2)}
 /* 演示 */
 #demo .demo-shell{
   margin-top:40px; border-radius:18px; overflow:hidden; box-shadow:var(--shadow);
-  border:1px solid color-mix(in srgb, var(--ink) 15%, transparent);
+  border:1px solid rgba(34,48,61,.18); border:1px solid color-mix(in srgb, var(--ink) 15%, transparent);
   background:var(--bp2); position:relative; aspect-ratio:16/9.6; min-height:520px;
 }
 #demoframe{width:100%; height:100%; border:0; display:none}
@@ -182,7 +182,7 @@ section.alt{background:var(--paper2)}
 .fs-btn:hover{border-color:#FF8A7A}
 .demo-shell.fakefull{
   position:fixed !important; inset:0 !important; z-index:1000;
-  aspect-ratio:auto !important; height:100dvh !important; min-height:0 !important;
+  aspect-ratio:auto !important; height:100vh !important; height:100dvh !important; min-height:0 !important;
   border-radius:0 !important; margin:0 !important; border:none !important;
 }
 body.fslock{overflow:hidden}
@@ -203,7 +203,7 @@ body.fslock{overflow:hidden}
 #demo-cover .hint{font-size:14px; color:#93A9BC; max-width:36em}
 .demo-tips{display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; justify-content:center}
 .demo-tips span{
-  font-size:13px; border:1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  font-size:13px; border:1px solid rgba(34,48,61,.25); border:1px solid color-mix(in srgb, var(--ink) 22%, transparent);
   color:var(--ink2); border-radius:999px; padding:6px 14px;
 }
 
@@ -212,7 +212,7 @@ body.fslock{overflow:hidden}
 @media (max-width:860px){ .patgrid{grid-template-columns:1fr} }
 .pat{
   border-radius:var(--radius); padding:34px 32px; position:relative; overflow:hidden;
-  background:var(--paper); border:1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  background:var(--paper); border:1px solid rgba(34,48,61,.16); border:1px solid color-mix(in srgb, var(--ink) 13%, transparent);
   box-shadow:0 8px 26px rgba(16,43,69,.07);
 }
 .pat.hot{border-top:5px solid var(--red)}
@@ -231,12 +231,12 @@ body.fslock{overflow:hidden}
   font-size:12px; letter-spacing:.14em; padding:6px 52px; color:#fff; background:var(--red);
 }
 .pat.base .badge{background:var(--zinc)}
-.pat-foot{font-size:13px; color:var(--ink2); margin-top:26px; border-top:1px dashed color-mix(in srgb, var(--ink) 22%, transparent); padding-top:14px}
+.pat-foot{font-size:13px; color:var(--ink2); margin-top:26px; border-top:1px dashed rgba(34,48,61,.28); border-top:1px dashed color-mix(in srgb, var(--ink) 22%, transparent); padding-top:14px}
 
 /* 标准 */
 .stdbox{
   margin-top:40px; display:grid; grid-template-columns:auto 1fr; gap:30px; align-items:center;
-  background:var(--paper); border:1px solid color-mix(in srgb, var(--ink) 13%, transparent);
+  background:var(--paper); border:1px solid rgba(34,48,61,.16); border:1px solid color-mix(in srgb, var(--ink) 13%, transparent);
   border-left:6px solid var(--gold); border-radius:var(--radius); padding:32px 36px;
   box-shadow:0 8px 26px rgba(16,43,69,.07);
 }
@@ -4201,8 +4201,14 @@ window.addEventListener('resize', function(){
   var launched = false;
   document.getElementById('demolaunch').addEventListener('click', function(){
     if (launched) return;
-    launched = true;
     var lang = html.getAttribute('data-lang');
+    var coarse = window.matchMedia && window.matchMedia('(pointer:coarse)').matches;
+    if (coarse && /^https?:$/.test(location.protocol)){
+      location.href = lang === 'en' ? 'demo-en.html' : 'demo-cn.html';
+      return;
+    }
+    launched = true;
+    if (coarse){ enterFake(); }
     var tpl = document.getElementById(lang === 'en' ? 'demoEN' : 'demoCN');
     var frame = document.getElementById('demoframe');
     frame.style.display = 'block';
