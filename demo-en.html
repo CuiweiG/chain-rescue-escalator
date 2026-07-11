@@ -105,6 +105,7 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
     <button id="brakebtn">🛑 Ground brake</button>
     <button id="labelbtn" class="active">Labels</button>
     <button id="resetbtn">Reset</button>
+    <button id="landbtn">⛶ Rotate</button>
     <button id="paneltoggle">Panel</button>
   </div>
 </header>
@@ -166,6 +167,47 @@ setTimeout(function(){
     b.style.background = '#B8352B';
     b.innerHTML = window.THREE ? '3D initialisation failed.<br>Please screenshot the red error bar at the bottom.' : 'Your browser engine is too old to run the 3D engine.<br>Please open with the system browser or update your app.';
   }, 6000);
+})();
+</script>
+
+<script>
+(function(){
+  var b = document.getElementById('landbtn');
+  if (!b) return;
+  var touch = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  if (!touch){ b.style.display = 'none'; return; }
+  function toast(msg){
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:46%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:rgba(16,43,69,.94);color:#fff;font-size:15px;padding:12px 20px;border-radius:10px;max-width:82vw;text-align:center;line-height:1.6';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 4200);
+  }
+  function lock(){
+    if (screen.orientation && screen.orientation.lock){
+      screen.orientation.lock('landscape').then(function(){ b.textContent = '⛶ Exit'; })
+      .catch(function(){ toast('Turn off the rotation lock in your phone settings, then rotate the phone'); });
+    } else { toast('Turn off the rotation lock in your phone settings, then rotate the phone'); }
+  }
+  b.addEventListener('click', function(){
+    if (document.fullscreenElement){
+      try{ if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+      document.exitFullscreen();
+      b.textContent = '⛶ Rotate';
+      return;
+    }
+    var de = document.documentElement;
+    var fs = de.requestFullscreen || de.webkitRequestFullscreen;
+    if (fs){
+      try{
+        var r = fs.call(de);
+        if (r && r.then){ r.then(lock).catch(lock); } else { setTimeout(lock, 300); }
+      }catch(e){ lock(); }
+    } else { lock(); }
+  });
+  document.addEventListener('fullscreenchange', function(){
+    if (!document.fullscreenElement){ b.textContent = '⛶ Rotate'; }
+  });
 })();
 </script>
 

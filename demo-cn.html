@@ -106,6 +106,7 @@ button.active{background:var(--accent); border-color:var(--accent); color:#fff}
     <button id="brakebtn">🛑 地面手刹</button>
     <button id="labelbtn" class="active">标注</button>
     <button id="resetbtn">复位</button>
+    <button id="landbtn">⛶ 横屏</button>
     <button id="paneltoggle">面板</button>
   </div>
 </header>
@@ -167,6 +168,47 @@ setTimeout(function(){
     b.style.background = '#B8352B';
     b.innerHTML = window.THREE ? '3D 初始化失败。<br>请把屏幕底部红色错误条截图反馈。' : '您的浏览器内核较旧，无法运行 3D 引擎。<br>请改用手机自带浏览器打开，或升级微信后重试。';
   }, 6000);
+})();
+</script>
+
+<script>
+(function(){
+  var b = document.getElementById('landbtn');
+  if (!b) return;
+  var touch = ('ontouchstart' in window) || (window.matchMedia && window.matchMedia('(pointer:coarse)').matches);
+  if (!touch){ b.style.display = 'none'; return; }
+  function toast(msg){
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;top:46%;left:50%;transform:translate(-50%,-50%);z-index:9999;background:rgba(16,43,69,.94);color:#fff;font-size:15px;padding:12px 20px;border-radius:10px;max-width:82vw;text-align:center;line-height:1.6';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 4200);
+  }
+  function lock(){
+    if (screen.orientation && screen.orientation.lock){
+      screen.orientation.lock('landscape').then(function(){ b.textContent = '⛶ 退出横屏'; })
+      .catch(function(){ toast('请先在手机快捷开关里关闭「竖排方向锁定」，再把手机横过来'); });
+    } else { toast('请先在手机快捷开关里关闭「竖排方向锁定」，再把手机横过来'); }
+  }
+  b.addEventListener('click', function(){
+    if (document.fullscreenElement){
+      try{ if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); }catch(e){}
+      document.exitFullscreen();
+      b.textContent = '⛶ 横屏';
+      return;
+    }
+    var de = document.documentElement;
+    var fs = de.requestFullscreen || de.webkitRequestFullscreen;
+    if (fs){
+      try{
+        var r = fs.call(de);
+        if (r && r.then){ r.then(lock).catch(lock); } else { setTimeout(lock, 300); }
+      }catch(e){ lock(); }
+    } else { lock(); }
+  });
+  document.addEventListener('fullscreenchange', function(){
+    if (!document.fullscreenElement){ b.textContent = '⛶ 横屏'; }
+  });
 })();
 </script>
 
