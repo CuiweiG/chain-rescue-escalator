@@ -97,6 +97,26 @@ h1 em{font-style:normal; color:#FF8A7A}
 @keyframes chainrun{ from{transform:translateY(0)} to{transform:translateY(96px)} }
 @media (prefers-reduced-motion: reduce){ .chain-col::before{animation:none} }
 
+/* ---------- 手机适配 ---------- */
+body{overflow-x:hidden}
+@media (max-width:640px){
+  body{font-size:15.5px}
+  nav{padding:12px 5vw; gap:12px}
+  nav .logo-en{display:none}
+  header.hero{padding:7vh 6vw 9vh}
+  h1{font-size:32px}
+  .hero p.lead{font-size:16px}
+  .btn{padding:12px 22px; font-size:15px}
+  section{padding:54px 6vw}
+  .stat{padding:18px 16px}
+  .stat b{font-size:24px}
+  #demo .demo-shell{aspect-ratio:auto; height:76vh; min-height:460px}
+  .pat{padding:26px 22px}
+  .stdbox{padding:24px 22px; gap:14px}
+  #inventor blockquote{font-size:17.5px}
+  .contact{padding:16px 18px; font-size:14.5px}
+}
+
 /* ---------- 数据条 ---------- */
 .stats{background:var(--bp2); color:#DFE9F2; padding:0 5vw}
 .stats-in{max-width:1180px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr); border-left:1px solid var(--line-bp)}
@@ -253,7 +273,7 @@ footer.site b{color:#A9BCCC}
 </style>
 
 <nav>
-  <span class="logo serif">链形滚梯 <b>·</b> <span style="font-size:13px;letter-spacing:.18em;opacity:.85">CHAIN RESCUE ESCALATOR</span></span>
+  <span class="logo serif">链形滚梯 <b>·</b> <span class="logo-en" style="font-size:13px;letter-spacing:.18em;opacity:.85">CHAIN RESCUE ESCALATOR</span></span>
   <div class="links">
     <a href="#why"><span class="cn">为什么</span><span class="en">Why</span></a>
     <a href="#how"><span class="cn">原理</span><span class="en">How it works</span></a>
@@ -494,8 +514,8 @@ footer.site b{color:#A9BCCC}
     </div>
     <div class="contact">
       <b><span class="cn">联系洽谈</span><span class="en">Contact</span></b>
-      <span><span class="cn">发明人家属（专利事务受托）· 请通过邮件联系：</span><span class="en">Inventor's family (authorised for patent matters) · please e-mail:</span>
-      <b>[ contact@example.com ]</b> <span class="cn">（此处替换为您的联系方式）</span><span class="en">(replace with your contact)</span></span>
+      <span><span class="cn">请通过邮件联系：</span><span class="en">Please e-mail:</span>
+      <b><a href="mailto:gjrzxcw010@163.com" style="color:#FFD9A8;text-decoration:none">gjrzxcw010@163.com</a></b></span>
     </div>
   </div>
 </section>
@@ -505,7 +525,7 @@ footer.site b{color:#A9BCCC}
     <b><span class="cn">声明</span><span class="en">Disclaimer</span></b> ·
     <span class="cn">本页面仅介绍已公开授权的专利技术（ZL200510009734.7 / CN104190007B），全部内容取自公开专利文献与国家标准；三维演示为概念示意，非工程图纸；任何据此制造的产品须经注册工程师复核并通过国家型式检验合格后方可载人使用。专利法律状态以国家知识产权局登记为准。</span>
     <span class="en">This page presents only published, granted patent technology (ZL200510009734.7 / CN104190007B); all content derives from public patent documents and national standards. The 3D demo is a concept illustration, not an engineering drawing; any product built from it must be verified by licensed engineers and pass national type-testing before carrying people. Legal status of the patents is as recorded at CNIPA.</span>
-    <br><br>© 2026 <span class="cn">发明人家属整理 · 保留所有权利</span><span class="en">Compiled by the inventor's family · all rights reserved</span>
+    <br><br>© 2026 <span class="cn">专利发明人保留所有权利</span><span class="en">All rights reserved by the patent inventor</span>
   </div>
 </footer>
 
